@@ -96,6 +96,15 @@ DIF updates `flows/upload.md` (and only that doc — nothing else was touched), 
 
 Same shape as `standard`, classified `complex` because it's a new flow/structural change. The only difference lands at `/dif:complete`: DIF additionally re-evaluates whether `architecture.md` itself needs updating (new service/module/external dependency) — it updates it if warranted, and says so either way. `trivial`/`standard` cycles never touch `architecture.md` from `complete`.
 
+### Same standard-track example, auto-chained with `/dif:run`
+
+```
+/dif:run "Add a rate limiter to the /api/upload endpoint, 10 req/min per API key."
+```
+DIF sets `run_mode: true`, drafts `requirement.md`, classifies `standard`, and stops at the requirement gate exactly as before. You reply `approved` — and instead of stopping there, DIF immediately drafts `task-plan.md` in the same reply and presents the plan gate. You reply `approved` again — DIF runs all three tasks, merges them into `consolidated-diff.md`, and presents the consolidate gate in that same reply. You reply `approved` a third time — DIF runs `/dif:complete`'s logic and reports the cycle is closed. Three approvals total, no other commands typed.
+
+At any of those three gates, replying with something like "approved, but pause after this" instead of a bare "approved" drops back to step-by-step mode: that gate's approval still goes through, but DIF stops and waits for you to type the next `/dif:*` command yourself from there on.
+
 ## 5. Customization
 
 - **Per-skill tuning**: each skill ships a near-empty `skills/<skill>/rules.md` with commented-out examples (track thresholds, doc-exclusion patterns, task-granularity preferences, the history-archive toggle, etc). Edit it directly in your copy of the plugin.
@@ -132,12 +141,14 @@ rm -rf .claude/dif/active/
   "track": "standard",
   "requirement_source": "direct",
   "approved": { "requirement": true, "plan": false, "consolidated": false },
-  "files_touched": []
+  "files_touched": [],
+  "run_mode": false
 }
 ```
 
 - `phase` tells you exactly where the cycle stopped.
 - `approved.*` tells you what's actually been signed off — if `plan` is `false` here, no plan has been approved yet, regardless of what got printed in chat.
+- `run_mode` tells you whether this cycle is auto-chaining (started via `/dif:run`, or resumed into it) or step-by-step. If it's `true` and you expected step-by-step, your next approval will auto-continue — say "pause" in that reply, or hand-edit it to `false`, if you don't want that.
 - Run `/dif:status` to get this printed back to you in readable form instead of reading the JSON directly.
 - If `phase` and the actual files in `active/` disagree (e.g. `phase: "executed"` but `task-outputs/` is empty), something was interrupted mid-write — the safest fix is usually to re-run the command for that phase; skills are idempotent about re-reading their inputs and re-writing their outputs.
 - As a last resort, you can hand-edit `state.json` to move `phase` backward (never forward past an `approved` flag that's still `false` — that's the one thing to never fake), then re-run the corresponding command.

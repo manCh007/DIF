@@ -56,9 +56,12 @@ This is the only skill that may run before any requirement exists, and the only 
   "track": null,
   "requirement_source": null,
   "approved": { "requirement": false, "plan": false, "consolidated": false },
-  "files_touched": []
+  "files_touched": [],
+  "run_mode": false
 }
 ```
+
+`run_mode: true` means this cycle was started via `/dif:run` and gated skills auto-continue to the next phase immediately after each approval, instead of waiting for the user to type the next `/dif:*` command. See `skills/run/SKILL.md`.
 
 ## No HIL gate
 

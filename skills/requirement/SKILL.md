@@ -21,6 +21,10 @@ Turn free-form requirement text — typed directly in chat, or pasted from an ex
 - `.claude/dif/active/requirement.md`
 - `.claude/dif/active/state.json` — `phase`, `track`, `requirement_source`, `approved.requirement` (see schema)
 
+## `run_mode`
+
+If this cycle was started via `/dif:run` (see `skills/run/SKILL.md`), `state.json.run_mode` is `true`. This changes nothing about steps 1–6 below or about requiring an explicit approval — it only changes what happens *after* approval (see the HIL gate section).
+
 ## Resuming / avoiding accidental overwrite
 
 If `state.json` exists and its `phase` is anything other than `"empty"` or `"explored"`, an active cycle is already in flight. Do not silently overwrite it. Tell the user what's in progress (phase, track, a one-line summary of the existing `requirement.md` if present) and ask whether to resume it, discard it and start fresh, or archive it first. Only proceed once the user has explicitly chosen.
@@ -48,9 +52,10 @@ If `state.json` exists and its `phase` is anything other than `"empty"` or `"exp
 This gate is a **separate turn**, not a separate command that chains automatically. Concretely:
 
 - If the user's next message (plain chat, not a slash command) requests changes: revise `requirement.md` (and `track` if asked), re-present the gate, leave `approved.requirement: false`. Repeat until approved.
-- If the user's next message is an explicit approval ("approved", "yes", "looks good", etc.): set `approved.requirement: true` in `state.json`, confirm briefly, and **stop** — do not automatically invoke `plan` or `execute`. The user must run the next `/dif:*` command themselves.
-- **Trivial track only**: this is the pipeline's single combined gate. Approval here means the user is approving both the requirement *and* going straight to execution with no separate plan step — say so explicitly when presenting the gate on this track, so the approval is informed. On approval, still only set `approved.requirement: true` (there is no `plan` phase to approve on this track); `/dif:execute` is gated on `phase == "requirement_approved"` directly for `trivial`.
-- Also on approval, advance `phase` to `"requirement_approved"`.
+- If the user's next message is an explicit approval ("approved", "yes", "looks good", etc.): set `approved.requirement: true` in `state.json`, advance `phase` to `"requirement_approved"`, and confirm briefly.
+  - If `run_mode` is `false` (or absent): **stop** — do not automatically invoke `plan` or `execute`. The user must run the next `/dif:*` command themselves.
+  - If `run_mode` is `true`: this approval message is also the trigger to continue. Unless the user's approval message *also* asks to pause, stop, or not auto-continue — in which case honor that, set `run_mode: false`, and stop as above — immediately proceed, in this same turn, to the next phase: read and follow `skills/plan/SKILL.md` for `standard`/`complex` tracks, or `skills/execute/SKILL.md` directly for `trivial` (see next bullet).
+- **Trivial track only**: this is the pipeline's single combined gate. Approval here means the user is approving both the requirement *and* going straight to execution with no separate plan step — say so explicitly when presenting the gate on this track, so the approval is informed. On approval, still only set `approved.requirement: true` (there is no `plan` phase to approve on this track); `/dif:execute` is gated on `phase == "requirement_approved"` directly for `trivial`. Under `run_mode: true`, proceed directly into `skills/execute/SKILL.md` rather than `plan`.
 
 ## Model tiering
 

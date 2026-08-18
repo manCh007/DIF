@@ -44,7 +44,9 @@ Read the approved requirement and produce `task-plan.md`: a concrete, ordered se
 > Stop here. Present the task plan clearly, including the dependency graph. Do not call any tool, write any file beyond `task-plan.md` and `state.json` already written above, or proceed to the next phase in this turn — regardless of confidence — until the user replies with an explicit approval. On approval, set `approved.plan` to `true` in `state.json` before ending the turn.
 
 - Revision requested: update `task-plan.md`, re-present, leave `approved.plan: false`.
-- Approved: set `approved.plan: true`, advance `phase` to `"plan_approved"`, confirm briefly, and stop — do not auto-invoke `execute`.
+- Approved: set `approved.plan: true`, advance `phase` to `"plan_approved"`, confirm briefly.
+  - If `state.json.run_mode` is `false` (or absent): **stop** — do not auto-invoke `execute`.
+  - If `run_mode` is `true`: unless the approval message also asks to pause/stop, immediately proceed in this same turn to `skills/execute/SKILL.md`.
 
 ## Execution model note (bake into scoping, not just document)
 

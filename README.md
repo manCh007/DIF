@@ -42,7 +42,7 @@ Every requirement is classified into a **track**, and the track determines how m
                       └────────────┘
 ```
 
-Each phase is its own slash command — never chained inside one prompt — so there's no code path that lets DIF "continue" past a gate without you invoking the next command yourself.
+Each phase is its own slash command, and — outside of `/dif:run` (below) — never chained inside one prompt, so there's no code path that lets DIF "continue" past a gate without you invoking the next command yourself.
 
 ## Commands
 
@@ -54,7 +54,10 @@ Each phase is its own slash command — never chained inside one prompt — so t
 | `/dif:execute` | Execute the approved plan (or, on `trivial`, the approved requirement), sequential by default. |
 | `/dif:consolidate` | Merge task outputs into `consolidated-diff.md`, stop for validation. |
 | `/dif:complete` | Incrementally update docs, archive to `history/`, clear `active/`, close state. |
-| `/dif:status` | Print current phase, track, and approval flags. Read-only. |
+| `/dif:status` | Print current phase, track, approval flags, and `run_mode`. Read-only. |
+| `/dif:run "<text>"` | Run the whole pipeline, auto-continuing to the next phase immediately after each gate is approved — no gate is skipped, you just don't retype the next command yourself. Say "pause" in an approval reply to drop back to step-by-step at any point. |
+
+`/dif:run` is a convenience wrapper, not a separate pipeline: it sets `run_mode: true` on the cycle and then hands off to the exact same `requirement`/`plan`/`execute`/`consolidate`/`complete` skills the individual commands use. See [`skills/run/SKILL.md`](skills/run/SKILL.md) for exactly what it does and doesn't change about the HIL guarantee.
 
 ## Quick example — `standard` track
 
@@ -70,6 +73,13 @@ Each phase is its own slash command — never chained inside one prompt — so t
    → DIF merges the outputs into consolidated-diff.md — you review and reply "approved"
 /dif:complete
    → DIF updates the affected flow doc, archives the cycle, resets state
+```
+
+The same cycle, auto-chained so you only type `/dif:run` once and then just reply "approved" at each gate:
+
+```
+/dif:run "Add a rate limiter to the /api/upload endpoint, 10 req/min per API key."
+   → requirement gate → approved → plan gate → approved → execute → consolidate gate → approved → complete
 ```
 
 ## Where things live

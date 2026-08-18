@@ -23,7 +23,7 @@ Close out a DIF cycle: update only the docs actually affected by what changed (n
 - `.claude/dif/docs/architecture.md` — **only** on `complex` track, and only if warranted (see step 5)
 - Updated `.claude/dif/docs/_meta.json` hashes for everything regenerated
 - `.claude/dif/history/<date>-<slug>/` — the archived `active/` contents (unless disabled, see rules.md)
-- Reset `.claude/dif/active/state.json` — back to `phase: "empty"`, `approved` all `false`, `files_touched: []`, ready for the next cycle
+- Reset `.claude/dif/active/state.json` — back to `phase: "empty"`, `approved` all `false`, `files_touched: []`, `run_mode: false`, ready for the next cycle
 
 ## Preconditions
 
@@ -40,11 +40,11 @@ Close out a DIF cycle: update only the docs actually affected by what changed (n
 5. **`complex` track only**: re-evaluate whether `architecture.md` needs updating — new service, new module, new external dependency. Do not update it for changes that don't rise to that level, even on `complex` track. `trivial`/`standard` never touch `architecture.md` here.
 6. Update `_meta.json` hashes for everything just regenerated.
 7. **History archive** (default-on; see rules.md to disable): derive `<slug>` from the first line of `requirement.md`, move all of `active/`'s contents into `history/<date>-<slug>/`, then clear `active/`.
-8. Reset `state.json` to a fresh `phase: "empty"` state, `approved` flags all `false`, `files_touched: []`. If history archiving is disabled, still clear `active/`'s working files (requirement.md, task-plan.md, task-outputs/, consolidated-diff.md, decision-log.md) since the cycle is genuinely done — just don't copy them anywhere first.
+8. Reset `state.json` to a fresh `phase: "empty"` state, `approved` flags all `false`, `files_touched: []`, `run_mode: false`. If history archiving is disabled, still clear `active/`'s working files (requirement.md, task-plan.md, task-outputs/, consolidated-diff.md, decision-log.md) since the cycle is genuinely done — just don't copy them anywhere first.
 
 ## No HIL gate
 
-Approval already happened at the `consolidated` gate (or the combined `trivial` gate). `complete` is finalization, not a decision point — it runs to completion and reports what docs it updated and where the cycle was archived.
+Approval already happened at the `consolidated` gate (or the combined `trivial` gate). `complete` is finalization, not a decision point — it runs to completion and reports what docs it updated and where the cycle was archived. This is also the natural end of a `/dif:run` orchestrated cycle — since `run_mode` is reset to `false` as part of the state reset above, there is nothing left to auto-continue into regardless.
 
 ## Model tiering
 

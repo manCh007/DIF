@@ -37,6 +37,7 @@ Do the actual implementation work. This is the **only** skill in this plugin per
 4. For each task: implement it, write its `task-outputs/<task-id>.md`, append any newly-touched files to `state.json.files_touched` (dedupe; don't overwrite the running list).
 5. If a task turns out to need something the plan didn't anticipate (a file the plan missed, a dependency that wasn't captured), do the correct thing for the codebase and record the deviation clearly in that task's output file — don't silently diverge without a trace.
 6. When all tasks are done: set `phase: "executed"`.
+7. Check `state.json.run_mode`. If `false` (or absent), stop here and report what was done — the user runs `/dif:consolidate` (or `/dif:complete` on `trivial`) themselves. If `true`, immediately continue in this same turn: `standard`/`complex` tracks proceed to `skills/consolidate/SKILL.md`; `trivial` (which has no consolidate step) proceeds directly to `skills/complete/SKILL.md`.
 
 ## Execution model — sequential by default (do not deviate silently)
 
@@ -49,7 +50,7 @@ If both conditions aren't clearly met, run sequentially even if the user passed 
 
 ## No HIL gate
 
-`execute` does not stop for approval — the requirement (and, on `standard`/`complex`, the plan) were already approved. It runs to completion (or to a genuine blocker) and reports what it did. The next gate, if any, is at `/dif:consolidate`.
+`execute` does not stop for approval — the requirement (and, on `standard`/`complex`, the plan) were already approved. It runs to completion (or to a genuine blocker) and reports what it did. The next gate, if any, is at `/dif:consolidate`. Outside `run_mode`, that also means execute always ends its own turn afterward — the user must invoke the next command themselves, same as every other phase boundary.
 
 ## Model tiering
 

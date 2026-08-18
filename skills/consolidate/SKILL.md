@@ -39,8 +39,10 @@ Merge the per-task outputs from `execute` into one coherent, human-reviewable pi
 
 > Stop here. Present the consolidated result clearly. Do not call any tool, write any file beyond `consolidated-diff.md`, `decision-log.md`, and `state.json` already written above, or proceed to the next phase in this turn — regardless of confidence — until the user replies with an explicit approval. On approval, set `approved.consolidated` to `true` in `state.json` before ending the turn.
 
-- Revision requested: this generally means going back to `execute` (or even `plan`) rather than editing the summary — say which, based on what the user is objecting to. If it's genuinely just a summarization error (the diff is right but was described wrong), fix `consolidated-diff.md` directly and re-present.
-- Approved: set `approved.consolidated: true`, confirm briefly, and stop — do not auto-invoke `complete`.
+- Revision requested: this generally means going back to `execute` (or even `plan`) rather than editing the summary — say which, based on what the user is objecting to. If it's genuinely just a summarization error (the diff is right but was described wrong), fix `consolidated-diff.md` directly and re-present. (If a revision sends this back to `execute` or `plan` mid-`run_mode`, stay in `run_mode` — you'll simply arrive back here for a fresh consolidate gate once that's redone.)
+- Approved: set `approved.consolidated: true`, confirm briefly.
+  - If `state.json.run_mode` is `false` (or absent): **stop** — do not auto-invoke `complete`.
+  - If `run_mode` is `true`: unless the approval message also asks to pause/stop, immediately proceed in this same turn to `skills/complete/SKILL.md`.
 
 ## Model tiering
 
