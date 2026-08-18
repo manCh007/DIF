@@ -1,0 +1,13 @@
+{
+  "name": "dif",
+  "version": "0.1.0",
+  "description": "DIF (Do It Fast) — a scoped, HIL-gated developer workflow for Claude Code: map codebase, intake requirement, plan tasks, execute, consolidate, complete.",
+  "author": { "name": "Manab Chatterjee" },
+  "repository": "https://github.com/<your-github-username>/dif",
+  "keywords": ["developer-workflow", "hil", "task-planning", "codebase-mapping"],
+  "license": "MIT",
+  "components": {
+    "commands": ["commands/"],
+    "skills": ["skills/"]
+  }
+}

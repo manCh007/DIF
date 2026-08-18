@@ -1,0 +1,12 @@
+{
+  "name": "dif-marketplace",
+  "description": "Self-distribution marketplace for the DIF (Do It Fast) plugin.",
+  "owner": { "name": "Manab Chatterjee" },
+  "plugins": [
+    {
+      "name": "dif",
+      "source": "./",
+      "description": "DIF (Do It Fast) — scoped developer-only agentic workflow with HIL gates"
+    }
+  ]
+}

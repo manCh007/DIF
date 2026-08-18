@@ -1,0 +1,12 @@
+# Local sample/test project artifacts used while developing this plugin
+/test-project/
+/sandbox/
+/.scratch/
+
+# Runtime state this plugin writes into consumer projects — never relevant here
+.claude/dif/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
